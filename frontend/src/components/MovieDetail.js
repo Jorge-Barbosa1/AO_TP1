@@ -1,0 +1,174 @@
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+
+const MovieDetail = () => {
+  const { id } = useParams();
+  const [movie, setMovie] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    const fetchMovie = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`http://localhost:5000/api/movies/${id}`);
+        setMovie(response.data);
+        
+        // Fetch comments (assuming there's an API endpoint for comments)
+        try {
+          const commentsResponse = await axios.get(`http://localhost:5000/api/comments/movie/${id}`);
+          setComments(commentsResponse.data);
+        } catch (commentsError) {
+          console.error('Error fetching comments:', commentsError);
+          // Set default empty comments if the endpoint doesn't exist
+          setComments([]);
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching movie details:', err);
+        setError('Failed to load movie details. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    fetchMovie();
+  }, [id]);
+
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim() || !username.trim()) return;
+
+    try {
+      const response = await axios.post(`http://localhost:5000/api/comments`, {
+        movieId: id,
+        text: newComment,
+        username: username
+      });
+      
+      // Add the new comment to the list
+      setComments([...comments, response.data]);
+      
+      // Clear the form
+      setNewComment('');
+    } catch (err) {
+      console.error('Error posting comment:', err);
+      alert('Failed to post comment. Please try again.');
+    }
+  };
+
+  if (loading) return <div className="loading">Loading...</div>;
+  if (error) return <div className="error">{error}</div>;
+  if (!movie) return <div className="not-found">Movie not found</div>;
+
+  return (
+    <div className="movie-detail-container">
+      <div className="movie-detail">
+        <div className="movie-poster-container">
+          <img 
+            src={movie.poster || '/placeholder.png'} 
+            alt={movie.title} 
+            className="movie-detail-poster"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = '/placeholder.png';
+            }}
+          />
+        </div>
+        <div className="movie-detail-info">
+          <h1>{movie.title} <span className="movie-year">({movie.year})</span></h1>
+          
+          <div className="movie-metadata">
+            {movie.rated && <span className="movie-rated">{movie.rated}</span>}
+            {movie.runtime && <span className="movie-runtime">{movie.runtime} min</span>}
+            {movie.genres && (
+              <div className="movie-genres">
+                {movie.genres.join(', ')}
+              </div>
+            )}
+          </div>
+          
+          {movie.directors && (
+            <div className="movie-directors">
+              <strong>Director:</strong> {movie.directors.join(', ')}
+            </div>
+          )}
+          
+          {movie.cast && (
+            <div className="movie-cast">
+              <strong>Cast:</strong> {movie.cast.join(', ')}
+            </div>
+          )}
+          
+          <div className="movie-plot">
+            <h3>Plot</h3>
+            <p>{movie.plot}</p>
+          </div>
+          
+          {movie.imdb && (
+            <div className="movie-ratings">
+              <div className="imdb-rating">
+                <strong>IMDb Rating:</strong> {movie.imdb.rating}/10 ({movie.imdb.votes.toLocaleString()} votes)
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div className="comments-section">
+        <h2>Comments</h2>
+        
+        <div className="comments-list">
+          {comments.length === 0 ? (
+            <p>No comments yet. Be the first to comment!</p>
+          ) : (
+            comments.map((comment, index) => (
+              <div key={index} className="comment">
+                <div className="comment-header">
+                  <strong>{comment.username}</strong>
+                  <span className="comment-date">
+                    {new Date(comment.date).toLocaleDateString()}
+                  </span>
+                </div>
+                <p>{comment.text}</p>
+              </div>
+            ))
+          )}
+        </div>
+        
+        <div className="comment-form">
+          <h3>Add a Comment</h3>
+          <form onSubmit={handleSubmitComment}>
+            <div className="form-group">
+              <label htmlFor="username">Username:</label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="comment">Comment:</label>
+              <textarea
+                id="comment"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                required
+                rows="4"
+              />
+            </div>
+            <button type="submit" className="submit-btn">Post Comment</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MovieDetail;
