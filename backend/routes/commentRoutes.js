@@ -7,7 +7,6 @@ router.get('/movie/:movieId', async (req, res) => {
   try {
     const comments = await Comment.find({ movieId: req.params.movieId })
       .sort({ date: -1 });
-
     res.json(comments);
   } catch (err) {
     console.error(err);
@@ -18,9 +17,13 @@ router.get('/movie/:movieId', async (req, res) => {
 // POST /api/comments/
 router.post('/', async (req, res) => {
   const { movieId, username, text } = req.body;
-
+  
+  // Validação básica
+  if (!movieId || !username || !text) {
+    return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
+  }
+  
   const comment = new Comment({ movieId, username, text });
-
   try {
     const newComment = await comment.save();
     res.status(201).json(newComment);

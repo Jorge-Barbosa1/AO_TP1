@@ -21,10 +21,10 @@ const Home = () => {
     const fetchMovies = async () => {
       setLoading(true);
       try {
-        let url = `https://ao-tp1.onrender.com/api/movies?page=${currentPage}`;
+        let url = `https://ao-tp1-backend.onrender.com/api/movies?page=${currentPage}`;
         
         if (searchTerm) {
-          url = `https://ao-tp1.onrender.com/api/movies/search/${searchTerm}`;
+          url = `https://ao-tp1-backend.onrender.com/api/movies/search/${searchTerm}`;
         }
         
         const response = await axios.get(url);
@@ -48,7 +48,7 @@ const Home = () => {
     fetchMovies();
   }, [searchTerm, currentPage]);
   
-  if (loading) return <div className="loading">Carregando...</div>;
+  if (loading) return <div className="loading">A carregar...</div>;
   if (error) return <div className="error">{error}</div>;
   
   return (
