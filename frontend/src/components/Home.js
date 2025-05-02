@@ -48,7 +48,7 @@ const Home = () => {
     fetchMovies();
   }, [searchTerm, currentPage]);
   
-  if (loading) return <div className="loading">Carregando...</div>;
+  if (loading) return <div className="loading">A carregar...</div>;
   if (error) return <div className="error">{error}</div>;
   
   return (

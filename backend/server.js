@@ -18,9 +18,9 @@ const commentRoutes = require('./routes/commentRoutes');
 app.use('/api/movies', movieRoutes);
 app.use('/api/comments', commentRoutes);
 
-// Rota básica para verificar se o servidor está funcionando
+// Rota básica para verificar se o servidor está funcionar
 app.get('/', (req, res) => {
-  res.send('API de Filmes está funcionando');
+  res.send('API Running');
 });
 
 // Conexão com o MongoDB
