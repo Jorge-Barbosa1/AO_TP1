@@ -21,10 +21,10 @@ const Home = () => {
     const fetchMovies = async () => {
       setLoading(true);
       try {
-        let url = `http://localhost:5000/api/movies?page=${currentPage}`;
+        let url = `https://ao-tp1.onrender.com/api/movies?page=${currentPage}`;
         
         if (searchTerm) {
-          url = `http://localhost:5000/api/movies/search/${searchTerm}`;
+          url = `https://ao-tp1.onrender.com/api/movies/search/${searchTerm}`;
         }
         
         const response = await axios.get(url);

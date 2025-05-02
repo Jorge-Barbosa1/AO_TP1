@@ -15,12 +15,12 @@ const MovieDetail = () => {
     const fetchMovie = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:5000/api/movies/${id}`);
+        const response = await axios.get(`https://ao-tp1.onrender.com/api/movies/${id}`);
         setMovie(response.data);
         
         // Fetch comments (assuming there's an API endpoint for comments)
         try {
-          const commentsResponse = await axios.get(`http://localhost:5000/api/comments/movie/${id}`);
+          const commentsResponse = await axios.get(`https://ao-tp1.onrender.com/api/comments/movie/${id}`);
           setComments(commentsResponse.data);
         } catch (commentsError) {
           console.error('Error fetching comments:', commentsError);
@@ -44,7 +44,7 @@ const MovieDetail = () => {
     if (!newComment.trim() || !username.trim()) return;
 
     try {
-      const response = await axios.post(`http://localhost:5000/api/comments`, {
+      const response = await axios.post(`https://ao-tp1.onrender.com/api/comments`, {
         movieId: id,
         text: newComment,
         username: username
