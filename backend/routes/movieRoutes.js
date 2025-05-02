@@ -6,14 +6,17 @@ const express = require('express');
 const router = express.Router();
 const Movie = require('../models/Movie');
 
-// GET /api/movies (all)
+// GET /api/movies (list with pagination)
 router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const movies = await Movie.find().select('title poster year genres').skip(skip).limit(limit);
+    const movies = await Movie.find()
+      .select('title poster year genres')
+      .skip(skip)
+      .limit(limit);
 
     const total = await Movie.countDocuments();
 
@@ -22,27 +25,27 @@ router.get('/', async (req, res) => {
       totalPages: Math.ceil(total / limit),
       currentPage: page,
     });
-  }catch (error) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Erro ao buscar filmes' });
   }
 });
 
-// GET /api/movies/search/:query 
+// GET /api/movies/search/:query (search by title)
 router.get('/search/:query', async (req, res) => {
   try {
     const searchQuery = req.params.query;
-    const movies = await Movie.find({ 
-      title: { $regex: searchQuery, $options: 'i' } 
+    const movies = await Movie.find({
+      title: { $regex: searchQuery, $options: 'i' },
     }).limit(20);
-    
+
     res.json(movies);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// GET /api/movies/:id 
+// GET /api/movies/:id (get movie by ID)
 router.get('/:id', async (req, res) => {
   try {
     const movie = await Movie.findById(req.params.id);
