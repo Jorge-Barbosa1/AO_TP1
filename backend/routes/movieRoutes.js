@@ -28,19 +28,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/movies/:id 
-router.get('/:id', async (req, res) => {
-  try {
-    const movie = await Movie.findById(req.params.id);
-    if (!movie) {
-      return res.status(404).json({ message: 'Filme não encontrado' });
-    }
-    res.json(movie);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
 // GET /api/movies/search/:query 
 router.get('/search/:query', async (req, res) => {
   try {
@@ -50,6 +37,19 @@ router.get('/search/:query', async (req, res) => {
     }).limit(20);
     
     res.json(movies);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET /api/movies/:id 
+router.get('/:id', async (req, res) => {
+  try {
+    const movie = await Movie.findById(req.params.id);
+    if (!movie) {
+      return res.status(404).json({ message: 'Filme não encontrado' });
+    }
+    res.json(movie);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
