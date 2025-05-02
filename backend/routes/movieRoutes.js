@@ -6,31 +6,6 @@ const express = require('express');
 const router = express.Router();
 const Movie = require('../models/Movie');
 
-// GET /api/movies (list with pagination)
-router.get('/', async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
-    const movies = await Movie.find()
-      .select('title poster year genres')
-      .skip(skip)
-      .limit(limit);
-
-    const total = await Movie.countDocuments();
-
-    res.json({
-      movies,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erro ao buscar filmes' });
-  }
-});
-
 // GET /api/movies/search/:query (search by title)
 router.get('/search/:query', async (req, res) => {
   try {
@@ -55,6 +30,31 @@ router.get('/:id', async (req, res) => {
     res.json(movie);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// GET /api/movies (list with pagination)
+router.get('/', async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const movies = await Movie.find()
+      .select('title poster year genres')
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Movie.countDocuments();
+
+    res.json({
+      movies,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro ao buscar filmes' });
   }
 });
 
