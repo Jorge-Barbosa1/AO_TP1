@@ -18,7 +18,7 @@ const commentRoutes = require('./routes/commentRoutes');
 app.use('/api/movies', movieRoutes);
 app.use('/api/comments', commentRoutes);
 
-// Rota básica para verificar se o servidor está funcionar
+// Rota básica
 app.get('/', (req, res) => {
   res.send('API Running');
 });
@@ -26,10 +26,10 @@ app.get('/', (req, res) => {
 // Conexão com o MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Conectado ao MongoDB'))
-  .catch(err => console.error('Erro ao conectar ao MongoDB:', err));
+  .catch(err => console.error('Erro a conectar ao MongoDB:', err));
 
 // Iniciar o servidor
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor a correr na porta ${PORT}`);
 });
