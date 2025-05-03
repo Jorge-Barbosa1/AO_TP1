@@ -25,7 +25,7 @@ const Navbar = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button type="submit">Buscar</button>
+        <button type="submit">Procurar</button>
       </form>
     </nav>
   );

@@ -11,7 +11,7 @@ router.get('/movie/:movieId', async (req, res) => {
     res.json(comments);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Erro ao buscar comentários' });
+    res.status(500).json({ message: 'Erro ao procurar comentários' });
   }
 });
 
