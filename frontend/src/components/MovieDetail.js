@@ -10,6 +10,8 @@ const MovieDetail = () => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [username, setUsername] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState('');
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -18,7 +20,7 @@ const MovieDetail = () => {
         const response = await axios.get(`https://ao-tp1-backend.onrender.com/api/movies/${id}`);
         setMovie(response.data);
         
-        // Fetch comments (assuming there's an API endpoint for comments)
+        // Fetch comments 
         try {
           const commentsResponse = await axios.get(`https://ao-tp1-backend.onrender.com/api/comments/movie/${id}`);
           setComments(commentsResponse.data);
@@ -35,14 +37,12 @@ const MovieDetail = () => {
         setLoading(false);
       }
     };
-
     fetchMovie();
   }, [id]);
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim() || !username.trim()) return;
-
     try {
       const response = await axios.post(`https://ao-tp1-backend.onrender.com/api/comments`, {
         movieId: id,
@@ -51,7 +51,7 @@ const MovieDetail = () => {
       });
       
       // Add the new comment to the list
-      setComments([...comments, response.data]);
+      setComments([response.data, ...comments]);
       
       // Clear the form
       setNewComment('');
@@ -61,9 +61,48 @@ const MovieDetail = () => {
     }
   };
 
-  if (loading) return <div className="loading">Loading...</div>;
+  const startEdit = (comment) => {
+    setEditingId(comment._id);
+    setEditText(comment.text);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditText('');
+  };
+
+  const submitEdit = async () => {
+    if (!editText.trim()) return;
+    
+    try {
+      const res = await axios.put(`https://ao-tp1-backend.onrender.com/api/comments/${editingId}`, { 
+        text: editText 
+      });
+      
+      setComments(curr => curr.map(c => c._id === editingId ? res.data : c));
+      setEditingId(null);
+      setEditText('');
+    } catch (err) {
+      console.error(err);
+      alert('Falha ao atualizar comentário.');
+    }
+  };
+  
+  const handleDelete = async (commentId) => {
+    if (window.confirm('Tem certeza que deseja apagar este comentário?')) {
+      try {
+        await axios.delete(`https://ao-tp1-backend.onrender.com/api/comments/${commentId}`);
+        setComments(curr => curr.filter(c => c._id !== commentId));
+      } catch (err) {
+        console.error(err);
+        alert('Falha ao apagar comentário.');
+      }
+    }
+  };
+
+  if (loading) return <div className="loading">A Carregar...</div>;
   if (error) return <div className="error">{error}</div>;
-  if (!movie) return <div className="not-found">Movie not found</div>;
+  if (!movie) return <div className="not-found">Filme não encontrado</div>;
 
   return (
     <div className="movie-detail-container">
@@ -120,28 +159,57 @@ const MovieDetail = () => {
       </div>
       
       <div className="comments-section">
-        <h2>Comments</h2>
+        <h2>Comentários</h2>
         
         <div className="comments-list">
           {comments.length === 0 ? (
-            <p>No comments yet. Be the first to comment!</p>
+            <p>Nenhum comentário!</p>
           ) : (
-            comments.map((comment, index) => (
-              <div key={index} className="comment">
+            comments.map(comment => (
+              <div key={comment._id} className="comment">
                 <div className="comment-header">
                   <strong>{comment.username}</strong>
                   <span className="comment-date">
                     {new Date(comment.date).toLocaleDateString()}
                   </span>
+                  <div className="comment-actions">
+                    <button 
+                      className="edit-btn"
+                      onClick={() => startEdit(comment)}
+                    >
+                      Editar
+                    </button>
+                    <button 
+                      className="delete-btn"
+                      onClick={() => handleDelete(comment._id)}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
-                <p>{comment.text}</p>
+                
+                {editingId === comment._id ? (
+                  <div className="edit-comment-form">
+                    <textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      rows="3"
+                    />
+                    <div className="edit-buttons">
+                      <button onClick={submitEdit} className="save-btn">Guardar</button>
+                      <button onClick={cancelEdit} className="cancel-btn">Cancelar</button>
+                    </div>
+                  </div>
+                ) : (
+                  <p>{comment.text}</p>
+                )}
               </div>
             ))
           )}
         </div>
         
         <div className="comment-form">
-          <h3>Add a Comment</h3>
+          <h3>Adicionar Comentário</h3>
           <form onSubmit={handleSubmitComment}>
             <div className="form-group">
               <label htmlFor="username">Username:</label>
@@ -154,7 +222,7 @@ const MovieDetail = () => {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="comment">Comment:</label>
+              <label htmlFor="comment">Comentário:</label>
               <textarea
                 id="comment"
                 value={newComment}
@@ -163,7 +231,7 @@ const MovieDetail = () => {
                 rows="4"
               />
             </div>
-            <button type="submit" className="submit-btn">Post Comment</button>
+            <button type="submit" className="submit-btn">Criar</button>
           </form>
         </div>
       </div>

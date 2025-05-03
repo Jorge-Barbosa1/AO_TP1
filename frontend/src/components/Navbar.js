@@ -21,7 +21,7 @@ const Navbar = () => {
       <form onSubmit={handleSearch} className="search-form">
         <input
           type="text"
-          placeholder="Buscar filmes..."
+          placeholder="Procurar filmes..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

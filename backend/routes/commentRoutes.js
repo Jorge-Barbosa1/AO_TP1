@@ -30,4 +30,35 @@ router.post('/', async (req, res) => {
   }
 });
 
+// PUT /api/comments/:id 
+router.put('/:id', async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ msg: 'Texto obrigatório' });
+
+    const updated = await Comment.findByIdAndUpdate(
+      req.params.id,
+      { text },
+      { new: true, runValidators: true }
+    );
+    if (!updated) return res.status(404).json({ msg: 'Comentário não encontrado' });
+
+    res.json(updated);              // devolve o comentário já actualizado
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/comments/:id  ➜ remover comentário
+router.delete('/:id', async (req, res) => {
+  try {
+    const deleted = await Comment.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ msg: 'Comentário não encontrado' });
+
+    res.status(204).end();          // 204 = No Content
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

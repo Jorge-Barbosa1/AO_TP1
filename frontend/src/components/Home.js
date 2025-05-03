@@ -31,7 +31,7 @@ const Home = () => {
         
         if (searchTerm) {
           setMovies(response.data);
-          setTotalPages(1); // Não há paginação para pesquisa neste exemplo simples
+          setTotalPages(1);
         } else {
           setMovies(response.data.movies);
           setTotalPages(response.data.totalPages);
